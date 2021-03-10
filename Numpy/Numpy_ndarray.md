@@ -72,7 +72,7 @@ print(test_array.size)
 >
 >  
 >
-> `size` : data의 갯수
+> `.size` : data의 갯수
 
 
 
