@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/windows,python,pycharm,vscode,jupyternotebooks,django
-# Edit at https://www.toptal.com/developers/gitignore?templates=windows,python,pycharm,vscode,jupyternotebooks,django
+# Created by https://www.toptal.com/developers/gitignore/api/django,windows,python,vscode,pycharm,vue
+# Edit at https://www.toptal.com/developers/gitignore?templates=django,windows,python,vscode,pycharm,vue
 
 ### Django ###
 *.log
@@ -32,8 +32,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -106,6 +104,9 @@ ipython_config.py
 #   install all needed dependencies.
 #Pipfile.lock
 
+# poetry
+#poetry.lock
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 __pypackages__/
 
@@ -117,8 +118,9 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
-.venv
+# .env
+.env/
+.venv/
 env/
 venv/
 ENV/
@@ -147,19 +149,13 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# operating system-related files
+*.DS_Store #file properties cache/storage on macOS
+Thumbs.db #thumbnail cache on Windows
+
 # profiling data
 .prof
 
-### JupyterNotebooks ###
-# gitignore template for Jupyter Notebooks
-# website: http://jupyter.org/
-
-*/.ipynb_checkpoints/*
-
-# IPython
-
-# Remove previous ipynb_checkpoints
-#   git rm -r .ipynb_checkpoints/
 
 ### PyCharm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -303,6 +299,8 @@ fabric.properties
 #   having no cross-platform support, pipenv may install dependencies that don't work, or not
 #   install all needed dependencies.
 
+# poetry
+
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow
 
 # Celery stuff
@@ -310,6 +308,7 @@ fabric.properties
 # SageMath parsed files
 
 # Environments
+# .env
 
 # Spyder project settings
 
@@ -323,7 +322,10 @@ fabric.properties
 
 # pytype static type analyzer
 
+# operating system-related files
+
 # profiling data
+
 
 ### vscode ###
 .vscode/*
@@ -332,6 +334,17 @@ fabric.properties
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
+### Vue ###
+# gitignore template for Vue.js projects
+#
+# Recommended template: Node.gitignore
+
+# TODO: where does this rule come from?
+docs/_book
+
+# TODO: where does this rule come from?
+test/
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -359,4 +372,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/windows,python,pycharm,vscode,jupyternotebooks,django
+# End of https://www.toptal.com/developers/gitignore/api/django,windows,python,vscode,pycharm,vue
