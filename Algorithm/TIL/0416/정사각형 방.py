@@ -4,10 +4,12 @@ def DFS(x, y):
     stack = [[x, y]]
     # 이동 횟수
     move = 1
+    stop = 1
 
-    while stack:
+    while stop:
+        stop = 0
         # 현재 좌표 정보
-        cur = stack.pop()
+        cur = stack[-1]
         cur_x, cur_y = cur[0], cur[1]
         # 사방 탐색
         for i in range(4):
@@ -24,9 +26,12 @@ def DFS(x, y):
                     else:
                         stack.append([nx, ny])
                         move += 1
+                        stop = 1
 
-    # 가능할 떄 까지 이동 후 시작점의 이동 횟수 정보 저장
-    count[arr[x][y]] = move
+    # 지나온 길에 각 이동 횟수 정보 저장
+    for i in range(move):
+        cur = stack[i]
+        count[arr[cur[0]][cur[1]]] = move - i
 
 # test_case 갯수
 T = int(input())
@@ -48,7 +53,8 @@ for test_case in range(1,T+1):
     # 각 좌표에서 DFS
     for i in range(N):
         for j in range(N):
-            DFS(i, j)
+            if not count[arr[i][j]]:
+                DFS(i, j)
 
     # 최댓값 찾기
     result = max(count)

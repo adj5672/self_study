@@ -1,23 +1,22 @@
+import sys
+
 # 회의 갯수
 N = int(input())
 
-confs = [list(map(int,input().split())) for _ in range(N)]
+# 회의 정보
+data = [list(map(int,sys.stdin.readline().split())) for _ in range(N)]
 
-count = 0
-while confs:
-    room, stack = [], []
-    room.append(confs.pop(0))
-    for _ in range(len(confs)):
-        cur = confs.pop(0)
-        for conf in room:
-            if not (cur[0] >= conf[1] or cur[1] <= conf[0]):
-                stack.append(cur)
-                break
-        else:
-            room.append(cur)
-    print(room)
-    print(stack)
-    count += 1
-    confs = stack
+# 배정할 회의
+result = []
+end_time = 0
 
-print(count) 
+# 종료시간 기준 정렬 (오름차순)
+data.sort(key=lambda x: (x[1], x[0]))
+
+while data:
+    meeting = data.pop(0)
+    if meeting[0] >= end_time:
+        result.append(meeting)
+        end_time = meeting[1]
+
+print(len(result))
