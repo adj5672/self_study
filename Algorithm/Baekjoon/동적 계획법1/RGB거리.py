@@ -1,32 +1,16 @@
-def DFS(idx, color, value):
-
-    global min_fee
-
-    if value > min_fee:
-        return
-
-    if idx == N:
-        if min_fee > value:
-            min_fee = value
-            return
-
-    else:
-        for i in range(3):
-            if i != color:
-                DFS(idx+1, i, value + house[idx][color])      
-    
+import sys
 
 N = int(input())
 
-min_fee = N * 1000
+RGB = [list(map(int,sys.stdin.readline().split())) for _ in range(N)]
 
-house = [list(map(int,input().split())) for _ in range(N)]
+result = [0, 0 ,0]
 
-for i in range(3):
-    DFS(0,i,0)
+for i in range(N):
+    red = min(result[1] + RGB[i][0], result[2] + RGB[i][0])
+    green = min(result[0] + RGB[i][1], result[2] + RGB[i][1])
+    blue = min(result[0] + RGB[i][2], result[1] + RGB[i][2])
 
-print(min_fee)
+    result = [red, green, blue]
 
-# 시간초과
-
-# [마지막 집 빨간색, 마지막 집 초록색, 마지막 집 파란색]
+print(min(result))
