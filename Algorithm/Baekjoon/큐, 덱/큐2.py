@@ -2,32 +2,38 @@ import sys
 from collections import deque
 
 N = int(input())
-stack = deque()
+queue = deque()
 
 for _ in range(N):
     order_data = sys.stdin.readline()[:-1].split()
     order = order_data[0]
 
     if order == 'push':
-        stack.append(order_data[1])
+        queue.append(order_data[1])
 
     elif order == 'pop':
-        if stack:
-            print(stack.pop())
+        if queue:
+            print(queue.popleft())
         else:
             print(-1)
 
     elif order == 'size':
-        print(len(stack))
+        print(len(queue))
 
     elif order == 'empty':
-        if stack:
+        if queue:
             print(0)
         else:
             print(1)
 
-    elif order == 'top':
-        if stack:
-            print(stack[-1])
+    elif order == 'front':
+        if queue:
+            print(queue[0])
+        else:
+            print(-1)
+
+    elif order == 'back':
+        if queue:
+            print(queue[-1])
         else:
             print(-1)
