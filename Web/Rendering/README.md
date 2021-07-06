@@ -1,4 +1,4 @@
-# 산출물
+# SSR & CSR
 > SSR & CSR
 
 
