@@ -355,3 +355,431 @@ var newPlayer = Object.assign({}, player, {score: 2});
 
 ### 6. 함수 컴포넌트
 
+Square 컴포넌트를 함수 컴포넌트로 전환
+
+```react
+function Square(props) {
+  return (
+    <button className="square" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+```
+
+
+
+### 7. 순서 만들기
+
+1. 첫 번째 차례를 "X"로 시작하기
+
+   ```react
+   class Board extends React.Component {
+     constructor(props) {
+       super(props);
+       this.state = {
+         squares: Array(9).fill(null),
+         xIsNext: true,
+       };
+     }
+   ```
+
+2. 클릭할 때 마다 xIsNext 값 뒤집기 위해 handleClick 함수 수정
+
+   ```react
+     handleClick(i) {
+       const squares = this.state.squares.slice()
+       squares[i] = this.state.xIsNext ? 'X' : 'O'
+       this.setState({
+         squares: squares,
+         xIsNext: !this.state.xIsNext,
+       })
+     }
+   ```
+
+3. 어느 플레이어가 다음 플레이어인지 나타내기
+
+   ```react
+     render() {
+       const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+   ```
+
+
+
+### 8. 승자 결정하기
+
+1. 승부가 날 때와 더 이상 둘 곳이 없을 때를 알려주기 위해 함수 작성
+
+   ```react
+   function calculateWinner(squares) {
+     const lines = [
+       [0, 1, 2],
+       [3, 4, 5],
+       [6, 7, 8],
+       [0, 3, 6],
+       [1, 4, 7],
+       [2, 5, 8],
+       [0, 4, 8],
+       [2, 4, 6],
+     ];
+     for (let i = 0; i < lines.length; i++) {
+       const [a, b, c] = lines[i];
+       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+         return squares[a];
+       }
+     }
+     return null;
+   }
+   ```
+
+2. 어떤 플레이어가 우승했는지 알리기 위하여 함수 호출
+
+   ```react
+     render() {
+       const winner = calculateWinner(this.state.squares)
+       let status
+       if (winner) {
+         status = 'Winner: ' + winner
+       } else {
+         status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O')
+       }
+   ```
+
+3. 승자가 결정되거나 이미 채워진 Square라면 handleClick 함수 무시
+
+   ```react
+   handleClick(i) {
+       const squares = this.state.squares.slice()
+       if (calculateWinner(squares) || squares[i]) {
+         return
+       } 
+       squares[i] = this.state.xIsNext ? 'X' : 'O'
+       this.setState({
+         squares: squares,
+         xIsNext: !this.state.xIsNext,
+       })
+     }
+   ```
+
+   
+
+### 9. 동작에 대한 기록 저장하기
+
+1. history 배열에 과거 squares 배열 저장하기
+
+   ```react
+   // 예시
+   
+   history = [
+     // 첫 동작이 발생하기 전
+     {
+       squares: [
+         null, null, null,
+         null, null, null,
+         null, null, null,
+       ]
+     },
+     // 첫 동작이 발생한 이후
+     {
+       squares: [
+         null, null, null,
+         null, 'X', null,
+         null, null, null,
+       ]
+     },
+     // 두 번째 동작이 발생한 이후
+     {
+       squares: [
+         null, null, null,
+         null, 'X', null,
+         null, null, 'O',
+       ]
+     },
+     // ...
+   ]
+   ```
+
+
+
+### 10. 다시 State 끌어 올리기
+
+1. Game 컴포넌트에 history state 설정 (Game 컴포넌트의 생성자 안에 초기 state 설정)
+
+   ```react
+   class Game extends React.Component {
+     constructor(props) {
+       super(props);
+       this.state = {
+         history: [{
+           squares: Array(9).fill(null),
+         }],
+         xIsNext: true,
+       };
+     }
+   ```
+
+2. Game => Board로 squares와 onClick props 전달
+
+   ```react
+   // Board
+   
+     renderSquare(i) {
+       return (
+         <Square 
+           value={this.props.squares[i]} 
+           onClick={() => this.props.onClick(i)}
+         />
+       );
+     }
+   ```
+
+3. Game의 render 함수를 가장 최근 기록을 사용하도록 업데이트
+
+   ```react
+   // Game
+   
+    render() {
+       const history = this.state.history
+       const current = history[history.length - 1]
+       const winner = calculateWinner(current.squares)
+       let status
+       if (winner) {
+         status = 'Winner: ' + winner
+       } else {
+         status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O')
+       }
+   
+       return (
+         <div className="game">
+           <div className="game-board">
+             <Board 
+               squares={current.squares}
+               onClick={(i) => this.handleClick(i)}
+             />
+           </div>
+           <div className="game-info">
+             <div>{status}</div>
+   ```
+
+4. Board render 함수 중복제거
+
+   ```react
+   // Board
+   
+     render() {
+       return (
+         <div>
+           <div className="board-row">
+           ...
+   ```
+
+5. handleClick 함수를 Game 컴포넌트로 이동 및 함수 수정
+
+   ```reacts
+     handleClick(i) {
+       const history = this.state.history
+       const current = history[history.length - 1]
+       const squares = current.squares.slice()
+       if (calculateWinner(squares) || squares[i]) {
+         return
+       } 
+       squares[i] = this.state.xIsNext ? 'X' : 'O'
+       this.setState({
+         history: history.concat([{
+           squares: squares,
+         }]),
+         xIsNext: !this.state.xIsNext,
+       })
+     }
+   ```
+
+   - 배열 `push()` 함수와 같이 더 익숙한 방식과 달리 `concat()` 함수는 기존 배열을 변경하지 않기 때문에 이를 더 권장합니다.
+
+
+
+### 11. 과거의 이동 표시하기
+
+1. history mapping
+
+   ```react
+   render() {
+       const history = this.state.history
+       const current = history[history.length - 1]
+       const winner = calculateWinner(current.squares)
+   
+       const moves = history.map((step, move) => {
+         const desc = move ?
+           'Go to move #' + move :
+           'Go to game state'
+         return (
+           <li>
+             <button onClick={() => this.jumpTo(move)}>{desc}</button>
+           </li>
+         )
+       })
+   
+       let status
+       if (winner) {
+         status = 'Winner: ' + winner
+       } else {
+         status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O')
+       }
+   
+       return (
+         <div className="game">
+           <div className="game-board">
+             <Board 
+               squares={current.squares}
+               onClick={(i) => this.handleClick(i)}
+             />
+           </div>
+           <div className="game-info">
+             <div>{status}</div>
+             <ol>{moves}</ol>
+           </div>
+         </div>
+       );
+     }
+   ```
+
+   - **경고 배열이나 이터레이터의 자식들은 고유의 “key” prop을 가지고 있어야 합니다. “Game”의 render 함수를 확인해주세요.**
+
+
+
+### 12. Key 선택하기
+
+리스트를 렌더링할 때 React는 렌더링하는 리스트 아이템에 대한 정보를 저장합니다. 리스트를 업데이트 할 때 React는 무엇이 변했는 지 결정해야 합니다. 리스트의 아이템들은 추가, 제거, 재배열, 업데이트 될 수 있습니다.
+
+아래의 코드가
+
+```html
+<li>Alexa: 7 tasks left</li>
+<li>Ben: 5 tasks left</li>
+```
+
+다음과 같이 변한다고 상상해 봅시다.
+
+```html
+<li>Ben: 9 tasks left</li>
+<li>Claudia: 8 tasks left</li>
+<li>Alexa: 5 tasks left</li>
+```
+
+사람의 눈에는 task 개수가 업데이트되었을 뿐만 아니라 Alexa와 Ben의 순서가 바뀌고 Claudia가 두 사람 사이에 추가되었다고 생각할 것입니다. 그러나 React는 컴퓨터 프로그램이며 사람이 의도한 바가 무엇인지 알지 못합니다. 그렇기 때문에 리스트 아이템에 *key* prop을 지정하여 각 아이템이 다른 아이템들과 다르다는 것을 알려주어야 합니다. 키를 지정하는 한 가지 방법은 `alexa`, `ben`, `claudia` 문자를 사용하는 것입니다. 만약 데이터베이스에서 데이터를 불러와서 표시한다면 Alexa, Ben, Claudia의 데이터베이스 ID가 키로 사용될 수 있습니다.
+
+```html
+<li key={user.id}>{user.name}: {user.taskCount} tasks left</li>
+```
+
+목록을 다시 렌더링하면 React는 각 리스트 아이템의 키를 가져가며 이전 리스트 아이템에서 일치하는 키를 탐색합니다. 현재 리스트에서 이전에 존재하지 않는 키를 가지고 있다면 React는 새로운 컴포넌트를 생성합니다. 현재 리스트가 이전 리스트에 존재했던 키를 가지고 있지 않다면 React는 그 키를 가진 컴포넌트를 제거합니다. 만약 두 키가 일치한다면 해당 구성요소는 이동합니다. 키는 각 컴포넌트를 구별할 수 있도록 하여 React에게 다시 렌더링할 때 state를 유지할 수 있게 합니다. 만약 컴포넌트의 키가 변한다면 컴포넌트는 제거되고 새로운 state와 함께 다시 생성됩니다.
+
+React에서 `key`는 심화 기능인 `ref`와 동일하게 특별하고 미리 지정된 prop입니다. 엘리먼트가 생성되면 React는 `key` 속성을 추출하여 반환되는 엘리먼트에 직접 키를 저장합니다. `key`가 `props`에 속하는 것처럼 보이지만 `this.props.key`로 참조할 수 없습니다. React는 자동으로 `key`를 어떤 컴포넌트를 업데이트 할 지 판단하는 데에 사용합니다. 컴포넌트는 `key`를 조회할 수 없습니다.
+
+**동적인 리스트를 만들 때마다 적절한 키를 할당할 것을 강력하게 추천합니다.** 적절한 키가 없는 경우 데이터 재구성을 고려해 볼 수 있습니다.
+
+키가 지정되지 않은 경우 React는 경고를 표시하며 배열의 인덱스를 기본 키로 사용합니다. 배열의 인덱스를 키로 사용하는 것은 리스트 아이템 순서를 바꾸거나 아이템을 추가/제거 할 때 문제가 됩니다. 명시적으로 `key={i}`를 전달하면 경고가 나타나지는 않지만 동일한 문제를 일으키기 때문에 대부분의 경우에 추천하지 않습니다.
+
+키는 전역에서 고유할 필요는 없으며 컴포넌트와 관련 아이템 사이에서는 고유한 값을 가져야 합니다.
+
+### 
+
+### 13. 시간 여행 구현하기
+
+1. key 값 설정하기
+
+   ```react
+       const moves = history.map((step, move) => {
+         const desc = move ?
+           'Go to move #' + move :
+           'Go to game state'
+         return (
+           <li key={move}>
+             <button onClick={() => this.jumpTo(move)}>{desc}</button>
+           </li>
+         )
+       })
+   ```
+
+2. state에 stepNumber 설정
+
+   ```react
+   class Game extends React.Component {
+     constructor(props) {
+       super(props);
+       this.state = {
+         history: [{
+           squares: Array(9).fill(null),
+         }],
+         stepNumber: 0,
+         xIsNext: true,
+       };
+     }
+   ```
+
+3. jumpTo 함수 정의
+
+   ```react
+     jumpTo(step) {
+       this.setState({
+         stepNumber: step,
+         xIsNext: (step % 2) === 0,
+       })
+     }
+   ```
+
+4. handleClick의 history, stepNumber 수정
+
+   ```react
+     handleClick(i) {
+       const history = this.state.history.slice(0, this.state.stepNumber + 1)
+       const current = history[history.length - 1]
+       const squares = current.squares.slice()
+       if (calculateWinner(squares) || squares[i]) {
+         return
+       } 
+       squares[i] = this.state.xIsNext ? 'X' : 'O'
+       this.setState({
+         history: history.concat([{
+           squares: squares,
+         }]),
+         stepNumber: history.length,
+         xIsNext: !this.state.xIsNext,
+       })
+     }
+   ```
+
+5. stepNumber에 맞는 현재 선택된 이동을 렌더링
+
+   ```react
+     render() {
+       const history = this.state.history
+       const current = history[this.state.stepNumber]
+       const winner = calculateWinner(current.squares)
+   ```
+
+   
+
+### 14. 마무리
+
+축하합니다! 당신은 아래 기능을 가진 틱택토 게임을 만들었습니다.
+
+- 틱택토를 할 수 있게 해주고,
+- 게임에서 승리했을 때를 알려주며,
+- 게임이 진행됨에 따라 게임 기록을 저장하고,
+- 플레이어가 게임 기록을 확인하고 게임판의 이전 버전을 볼 수 있도록 허용합니다.
+
+수고하셨습니다! 이제 React가 어떻게 동작하는지 이해하셨길 바랍니다.
+
+최종 결과는 여기서 확인해주세요: **[최종 결과](https://codepen.io/gaearon/pen/gWWZgR?editors=0010)**.
+
+시간이 더 있거나 새로운 React 기술을 연습하고 싶은 경우 다음과 같이 난이도를 높일 수 있는 틱택토 게임 개선 아이디어를 구현해보세요.
+
+1. 이동 기록 목록에서 특정 형식(행, 열)으로 각 이동의 위치를 표시해주세요.
+2. 이동 목록에서 현재 선택된 아이템을 굵게 표시해주세요.
+3. 사각형들을 만들 때 하드코딩 대신에 두 개의 반복문을 사용하도록 Board를 다시 작성해주세요.
+4. 오름차순이나 내림차순으로 이동을 정렬하도록 토글 버튼을 추가해주세요.
+5. 승자가 정해지면 승부의 원인이 된 세 개의 사각형을 강조해주세요.
+6. 승자가 없는 경우 무승부라는 메시지를 표시해주세요.
+
+자습서를 통해 엘리먼트, 컴포넌트, props, state를 포함한 React의 개념을 다루었습니다. 각 항목에 대한 자세한 설명은 [문서의 다른 부분](https://ko.reactjs.org/docs/hello-world.html)을 참조하시길 바랍니다. 컴포넌트의 정의에 대한 자세한 내용은 [`React.Component` API 참조](https://ko.reactjs.org/docs/react-component.html)를 확인해주세요.
+
