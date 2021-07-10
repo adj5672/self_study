@@ -1,12 +1,15 @@
 N = int(input())
-div = list(map(int,input().split()))
-M = max(div) + 1
+nums = list(map(int, input().split()))
+nums.sort()
 
-while True:
-    for n in div:
-        if M % n != 0:
-            M += 1
-            break
-    else:
-        print(M)
-        break
+def gcd(a, b):
+    return a if not b else gcd(b, a % b)
+
+lcm = 1
+for i in range(N):
+    c_gcd = gcd(lcm, nums[i])
+    lcm = lcm * nums[i] / c_gcd
+if lcm not in nums:
+    print(int(lcm))
+else:
+    print(int(lcm * nums[0]))

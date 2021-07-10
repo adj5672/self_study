@@ -1,17 +1,17 @@
 N = int(input())
+A = list(map(int, input().split()))
+cnt = [0 for _ in range(N)]
 
-data = list(map(int,input().split()))
+if N == 1:
+    cnt[0] = 1
+else:
+    cnt[-1] = 1
+    for i in range(N-2, -1, -1):
+        if A[i] >= max(A[i+1:]):
+            cnt[i] = 1
+        else:
+            for j in range(i+1, N):
+                if A[i] < A[j] and cnt[i] <= cnt[j]:
+                    cnt[i] = cnt[j] + 1
 
-result = []
-
-for idx in range(N):
-    for j in range(len(result)):
-        seq = [x for x in result[j]]
-        if seq[0] < data[idx]:
-            seq[0] = data[idx]
-            seq[1] = result[j][1] + 1
-            result.append(seq)
-    result.append([data[idx], 1])
-
-result.sort(key=lambda x: x[1])
-print(result[-1][1])
+print(max(cnt))

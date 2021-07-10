@@ -1,10 +1,8 @@
-import sys
-
 N = int(input())
-
-data = list(map(int,sys.stdin.readline().split()))
-
-sort_num = sorted(list(set(data)))
-
-for num in data:
-    print(sort_num.index(num), end=' ')
+X = list(map(int, input().split()))
+order = list(set(X))
+order.sort()
+key = {}
+for idx, num in enumerate(order):
+    key[num] = idx
+print(' '.join(list(map(str, list(map(lambda x: key[x], X))))))
